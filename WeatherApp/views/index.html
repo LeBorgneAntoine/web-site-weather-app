@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Weather city</title>
+    <link rel="stylesheet" href="./style/style.css">
+</head>
+<body>
+
+        <nav class="navigation-bar-container">
+
+            <a class="navigation-bar-link" href="#" >contact</a>
+            <a class="navigation-bar-link" href="#" >aide</a>
+            <a class="navigation-bar-link" href="#" >accueil</a>
+
+        </nav>
+
+
+        <label id="weather_title" class="weather-title">Weather app</label>
+        <div class="input-section">
+
+            <input id="city-name" class="weather-name-input" type="text" value="" placeholder="entrer ville...">
+            <button  class="weather-name-validate" onclick="updateWeatherList()" >Valider</button>
+
+        </div>
+
+
+
+        <label id="error_msg"  class="error-msg"></label>
+
+
+
+      <div id="weather-container" class="weather-container">
+
+          <label id="localisation" class="localisation-label"></label>
+          <label id="temperature" class="temperature-label"></label>
+          <div class="more-info">
+              <label id="humidity" class="humidity-label"></label>
+              <label id="pressure" class="pressure-label"></label>
+              <label id="temp_max" class="temp-max-label"></label>
+              <label id="temp_min" class="temp-min-label"></label>
+          </div>
+
+          <img id="description" class="weather-icon" src="" alt="" class="description-label"/>
+
+      </div>
+
+
+
+
+
+      <!-- api getter -->
+      <script>
+
+          /**
+           * update the weather data by the "openweathermap" API
+           * link : https://openweathermap.org/current
+           */
+            updateWeatherList = function () {
+                const city = document.getElementById('city-name').value
+
+                if(city !== ""){
+                    document.getElementById('error_msg').innerText = ""
+                    fetch('http://api.openweathermap.org/data/2.5/weather?q='+city+',fr&APPID=ee07e2bf337034f905cde0bdedae3db8')
+                        .then((res) => res.json())
+                        .then((data) => {
+                            renderWeather(data)
+                        })
+                }else{
+                    document.getElementById('error_msg').innerText = "Aucune ville selectionné"
+                  clearWeather()
+
+                }
+
+            }
+
+          /**
+           * render the data into html page
+           *
+           * @param cityData the data to render
+           */
+            renderWeather = function (cityData) {
+
+
+                console.log(cityData)
+                 if(cityData.cod === "404"){
+                     document.getElementById('error_msg').innerText = "Ville mal orthographié"
+                     clearWeather()
+                 }else{
+
+                     var celcius = toCelsius(cityData.main.temp)
+
+                     document.getElementById('localisation').innerText = cityData.name
+                     document.getElementById('temperature').innerText = celcius + " C°"
+                         document.getElementById('description').src = " http://openweathermap.org/img/wn/"+cityData.weather[0].icon+"@2x.png"
+
+                     document.getElementById('humidity').innerText ="Humiditer : "+ cityData.main.humidity+" % | "
+                     document.getElementById('pressure').innerText ="Pression : "+ cityData.main.pressure+" hPa | "
+                     document.getElementById('temp_max').innerText ="Max : "+ toCelsius(cityData.main.temp_max)+" C° | "
+                     document.getElementById('temp_min').innerText = "Min : "+toCelsius(cityData.main.temp_min)+" C°"
+
+                     document.getElementById('weather-container').style.display = "block"
+                     document.getElementById('weather-footer').style.top = "170%"
+                     document.getElementById( 'weather-container' ).scrollIntoView();
+                 }
+
+
+
+            }
+
+          /**
+           * convert kalvin to Celsius
+           *
+           * @param kalvinTemp
+           * @returns {number}
+           */
+            toCelsius = function (kalvinTemp) {
+               return  Math.round(parseFloat(kalvinTemp)-273.15);
+            }
+
+          /**
+           * clear the weather info view
+           */
+          clearWeather = function (){
+              document.getElementById('weather-container').style.display = "none"
+              document.getElementById('weather-footer').style.top = "100%"
+          }
+
+      </script>
+
+</body>
+<footer id="weather-footer">
+    <label class="footer-text">Antoine LE BORGNE | Weather Webapp</label>
+</footer>
+</html>
